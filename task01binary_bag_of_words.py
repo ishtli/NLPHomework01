@@ -39,7 +39,7 @@ print("词表大小：", len(vectorizer.vocabulary_))
 print("训练集矩阵形状：", X_train.shape)
 
 model = LogisticRegression(
-    solver="saga",
+    solver="lbfgs",
     max_iter=1000,
     random_state=42,
 )
@@ -53,10 +53,20 @@ test_pred = model.predict(X_test)
 print("Test Accuracy:", accuracy_score(test["label"], test_pred))
 print("Test Macro-F1:", f1_score(test["label"], test_pred, average="macro"))
 '''
+saga：
 词表大小： 123944
 训练集矩阵形状： (204800, 123944)
 Validation Accuracy: 0.8903125
 Validation Macro-F1: 0.8902406123573597
 Test Accuracy: 0.8878515625
 Test Macro-F1: 0.8877723434186537
+'''
+'''
+lbfgs:
+词表大小： 123944
+训练集矩阵形状： (204800, 123944)
+Validation Accuracy: 0.89046875
+Validation Macro-F1: 0.890402655771555
+Test Accuracy: 0.8873046875
+Test Macro-F1: 0.8872279693474925
 '''
