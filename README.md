@@ -1,2 +1,4 @@
-自修没去实验课好像数据集选的不一样hh
-具体详见实验报告
+- 自修没有去实验课，我选的数据集和老师提供的不一致hh
+- task01、task02 的运行结果以注释形式附在对应脚本末尾。
+- task03 的 `outputs` 文件夹过大，未上传至 GitHub。`task03_records_lr` 记录了本次实验使用的不同 batch size 和 learning rate，以及 BERT 模型最后一个 epoch 的 eval 结果和最终验证集结果。本次实验中，最后一个 epoch 均为最佳 checkpoint。
+- 实验细节详见实验报告。
