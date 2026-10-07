@@ -7,6 +7,8 @@ from nltk import word_tokenize
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score
 from gensim.models import Word2Vec
+
+from time import perf_counter
 '''
 Pretrained GloVe: glove
 Train on AGNews: ag
@@ -114,20 +116,33 @@ X_test, empty_test = make_document_vectors(test_tokens, word_vectors)
 print("Document matrix shapes：", X_train.shape, X_val.shape, X_test.shape)
 print("Documents with no known words:：", empty_train, empty_val, empty_test)
 
-classifier = LogisticRegression(
-    solver="saga",
-    max_iter=1000,
-    random_state=42,
-)
-classifier.fit(X_train, train["label"])
+for solver in ("lbfgs",):
+    model = LogisticRegression(
+        solver=solver,
+        max_iter=1000,
+        random_state=42,
+    )
 
-val_pred = classifier.predict(X_val)
-print("Validation Accuracy:", accuracy_score(val["label"], val_pred))
-print("Validation Macro-F1:", f1_score(val["label"], val_pred, average="macro"))
+    start = perf_counter()
+    model.fit(X_train, train["label"])
+    fit_seconds = perf_counter() - start
 
-test_pred = classifier.predict(X_test)
-print("Test Accuracy:", accuracy_score(test["label"], test_pred))
-print("Test Macro-F1:", f1_score(test["label"], test_pred, average="macro"))
+    val_pred = model.predict(X_val)
+
+    start = perf_counter()
+    test_pred = model.predict(X_test)
+    predict_seconds = perf_counter() - start
+
+    print(f"\nSolver: {solver}")
+    print(f"fit time: {fit_seconds * 1000:.2f} ms")
+    print(f"perdict time: {predict_seconds * 1000:.2f} ms")
+    print(f"num_of_iter: {model.n_iter_}")
+    print("Validation Accuracy:", accuracy_score(val["label"], val_pred))
+    print("Validation Macro-F1:", f1_score(val["label"], val_pred, average="macro"))
+    print("Test Accuracy:", accuracy_score(test["label"], test_pred))
+    print("Test Macro-F1:", f1_score(test["label"], test_pred, average="macro"))
+
+#old version saga maxiter 1000
 '''                                                                              
 Exception ignored in: 'gensim.models.word2vec_inner.our_dot_float'                                                                                 
 METHOD： ag                                                                                                                                        
@@ -164,4 +179,65 @@ Validation Accuracy: 0.820234375
 Validation Macro-F1: 0.8197032847642278
 Test Accuracy: 0.821953125
 Test Macro-F1: 0.8213322458127911
+'''
+#new version
+#nyt glove with saga can't converge with max_iter=1000 as above
+#nyt glove with saga fit time too long with max_iter=3000, so only lbfgs tested
+'''
+Exception ignored in: 'gensim.models.word2vec_inner.our_dot_float'
+METHOD： ag
+len(word_vectors)： 57176
+Document matrix shapes： (204800, 100) (25600, 100) (25600, 100)
+Documents with no known words:： 3 2 2
+
+Solver: lbfgs
+fit time: 4150.27 ms
+perdict time: 4.86 ms
+num_of_iter: [122]
+Validation Accuracy: 0.7527734375
+Validation Macro-F1: 0.7518183214700418
+Test Accuracy: 0.7511328125
+Test Macro-F1: 0.749926042409228
+
+Solver: saga
+fit time: 27447.30 ms
+perdict time: 2.32 ms
+num_of_iter: [56]
+Validation Accuracy: 0.752578125
+Validation Macro-F1: 0.7516476436481353
+Test Accuracy: 0.751484375
+Test Macro-F1: 0.7502565744322334
+'''
+'''
+Exception ignored in: 'gensim.models.word2vec_inner.our_dot_float'
+Exception ignored in: 'gensim.models.word2vec_inner.our_dot_float'
+METHOD： nyt
+len(word_vectors)： 69873
+Document matrix shapes： (204800, 100) (25600, 100) (25600, 100)
+Documents with no known words:： 0 0 1
+
+Solver: lbfgs
+fit time: 4247.51 ms
+perdict time: 2.35 ms
+num_of_iter: [126]
+Validation Accuracy: 0.843515625
+Validation Macro-F1: 0.8432594927492946
+Test Accuracy: 0.843359375
+Test Macro-F1: 0.8430915378848677
+'''
+
+'''
+METHOD： glove
+len(word_vectors)： 400000
+Document matrix shapes： (204800, 100) (25600, 100) (25600, 100)
+Documents with no known words:： 1 0 0
+
+Solver: lbfgs
+fit time: 4945.64 ms
+perdict time: 4.72 ms
+num_of_iter: [139]
+Validation Accuracy: 0.820078125
+Validation Macro-F1: 0.8195598896088471
+Test Accuracy: 0.8215625
+Test Macro-F1: 0.8209545738375164
 '''

@@ -20,7 +20,7 @@ NUM_LABELS = 8
 
 root = Path(__file__).resolve().parent
 data_dir = root / "data" / "NYTprocessed"
-output_dir = root / "outputs" / "task03_bert_01"
+output_dir = root / "outputs" / "task03_bert_02"
 
 
 if not torch.cuda.is_available():
@@ -99,9 +99,9 @@ def compute_metrics(eval_pred):
 training_args = TrainingArguments(
     output_dir=str(output_dir),
     num_train_epochs=3,
-    per_device_train_batch_size=8,
-    per_device_eval_batch_size=16,
-    learning_rate=2e-5,
+    per_device_train_batch_size=16,
+    per_device_eval_batch_size=32,
+    learning_rate=1e-5,
     weight_decay=0.01,
     eval_strategy="epoch",
     save_strategy="epoch",
